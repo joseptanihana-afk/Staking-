@@ -1,0 +1,41 @@
+[package]
+name = "solana-staking-protect"
+version = "0.1.0"
+edition = "2021"
+description = "Solana Proof-of-Stake staking program with ROI/APY/APR rates and loss protection simulator for blockchain deployment"
+authors = ["Solana Staking Protocol Team"]
+repository = "https://github.com/solana-staking-protect/solana-staking-protect"
+license = "MIT"
+keywords = ["solana", "staking", "proof-of-stake", "apy", "apr", "roi", "protection", "native-staking", "blockchain", "program"]
+categories = ["cryptography", "blockchain", "finance", "development-tools::build-utils"]
+
+[dependencies]
+solana-program = "1.18"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+rust_decimal = { version = "1.33", features = ["math"] }
+
+[dev-dependencies]
+solana-program-test = "1.18"
+solana-sdk = "1.18"
+
+[workspace]
+members = [
+    "solana-staking-protect",
+    "solana-staking-simulation",
+]
+resolver = "2"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+
+[lib]
+name = "solana_staking_protect"
+crate-type = ["cdylib", "lib"]
+path = "solana-staking-protect/src/lib.rs"
+
+[features]
+default = []
+no-entrypoint = []

@@ -1,0 +1,6 @@
+{
+  "name": "Solana Staking Protect & 100% Protection Protocol",
+  "description": "On-chain Solana Proof-of-Stake staking program with 100,000,000,000% native rate, real-time millisecond rewards, 100% loss protection protocol, interactive bytecode packer, and dual-crate Rust contract explorer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
