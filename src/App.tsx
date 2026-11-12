@@ -61,7 +61,7 @@ export default function App() {
   const lamportsToSol = (l: number) => (l / 1_000_000_000).toFixed(4);
   const stakeLamports = stakeAmountSol * 1_000_000_000;
   const protectionFeeLamports = Math.floor(stakeLamports * 0.000009); // 0.0009%
-  const minWalletRequired = 40000; // 0.04 cent (~40,000 lamports)
+  const minWalletRequired = 20_000_000; // 0.02 SOL (20,000,000 lamports)
 
   const isWalletSufficient = walletBalanceSol * 1_000_000_000 >= minWalletRequired && walletBalanceSol * 1_000_000_000 >= protectionFeeLamports;
 

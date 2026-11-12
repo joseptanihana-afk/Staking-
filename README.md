@@ -5,146 +5,39 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Staking APR](https://img.shields.io/badge/APR-100%2C000%2C000%2C000%25-emerald.svg)]()
 
-Production-grade Solana Proof-of-Stake staking program and real on-chain 100% loss protection protocol. Built for high-performance blockchain deployment with native **100,000,000,000% (100 billion percent)** reward rates, real-time millisecond earnings calculation, and robust fee protection mechanisms.
+This master README provides separate, step-by-step installation and deployment guides for **Package 1 (`solana-staking-protect`)** and **Package 2 (`solana-staking-simulation`)**. Each package is an independent on-chain Solana program.
 
 ---
 
-## Table of Contents
+## Prerequisites (Shared Setup)
 
-1. [Package Overview & Repository Structure](#package-overview--repository-structure)
-2. [Prerequisites & Environment Setup](#prerequisites--environment-setup)
-3. [Installing Rust, Cargo, and BPF Target](#installing-rust-cargo-and-bpf-target)
-4. [Installing Solana CLI & Web3 Packages](#installing-solana-cli--web3-packages)
-5. [Creating Staking Keypairs & Accounts](#creating-staking-keypairs--accounts)
-6. [Creating Staking Pools & Staking IDs on Blockchain](#creating-staking-pools--staking-ids-on-blockchain)
-7. [Configuring `Cargo.toml` Dependencies](#configuring-cargo-toml-dependencies)
-8. [Building, Testing, and Deploying](#building-testing-and-deploying)
-9. [Instruction API Reference & Byte Packing](#instruction-api-reference--byte-packing)
+Before installing either package, ensure you have Rust, Cargo, and Solana CLI installed:
 
----
-
-## Package Overview & Repository Structure
-
-This repository contains **two independent on-chain Cargo packages**, each self-contained with its own source code, build guides, and test suites:
-
-| Package | Purpose | On-Chain Target |
-|---|---|---|
-| `solana-staking-protect` | Core PoS staking program (initialize, delegate, deactivate, withdraw, claim rewards, ROI/APY/APR calculations) | `target/bpfel-unknown-unknown/release/libsolana_staking_protect.so` |
-| `solana-staking-simulation` | Real on-chain 100% protection protocol (loss protection pool, 0.0009% fee, 0.04 cent min wallet balance) | `target/bpfel-unknown-unknown/release/libsolana_staking_simulation.so` |
-
----
-
-## Prerequisites & Environment Setup
-
-Before starting, ensure your system has the following tools installed:
-- Unix-like environment (Linux / macOS / WSL)
-- Curl and Git
-- Node.js & npm (for Web3 client applications)
-
----
-
-## Installing Rust, Cargo, and BPF Target
-
-### 1. Install Rust and Cargo via `rustup`
+### 1. Install Rust & Cargo
 ```bash
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source "$HOME/.cargo/env"
 ```
 
-### 2. Verify Rust & Cargo Installation
-```bash
-rustc --version
-cargo --version
-```
-
-### 3. Add the Solana BPF Compilation Target (`bpfel-unknown-unknown`)
-To compile smart contracts to Solana BPF bytecode:
+### 2. Add Solana BPF Compilation Target
 ```bash
 rustup target add bpfel-unknown-unknown
 ```
 
----
-
-## Installing Solana CLI & Web3 Packages
-
-### 1. Install Solana CLI Tools
+### 3. Install Solana CLI & Web3 Tools
 ```bash
 sh -c "$(curl -sSfL https://release.solana.com/v1.18.0/install)"
-```
-Add Solana binaries to your `PATH` (typically `~/.local/share/solana/install/active_release/bin`). Verify installation:
-```bash
-solana --version
-```
-
-### 2. Configure Solana CLI for Devnet / Mainnet
-```bash
-solana config set --url https://api.devnet.solana.com
-# or for mainnet-beta:
-# solana config set --url https://api.mainnet-beta.solana.com
-```
-
-### 3. Install Solana Web3 JavaScript/TypeScript Packages (for Client Apps)
-If you are integrating with the staking programs via TypeScript/JavaScript:
-```bash
 npm install @solana/web3.js @solana/spl-token
 ```
 
 ---
 
-## Creating Staking Keypairs & Accounts
+# PACKAGE 1: `solana-staking-protect`
+> **Core Proof-of-Stake Staking Program**
+> Features: 100,000,000,000% native APR rate, real-time millisecond earnings, initialization, delegation, deactivation, withdrawal, and reward claiming.
 
-### 1. Generate a New Wallet / Authority Keypair
-```bash
-solana-keygen new --outfile ~/.config/solana/id.json --no-passphrase
-```
-Verify your public key:
-```bash
-solana address
-```
-Airdrop SOL on Devnet for testing:
-```bash
-solana airdrop 5 $(solana address)
-```
-
-### 2. Create a Dedicated Staking Keypair (Staking ID / Account)
-To create a new on-chain stake account ID:
-```bash
-solana-keygen new --outfile ~/.config/solana/stake-account.json --no-passphrase
-```
-Get the staking account public key:
-```bash
-solana-keygen pubkey ~/.config/solana/stake-account.json
-```
-
----
-
-## Creating Staking Pools & Staking IDs on Blockchain
-
-### 1. Create the On-Chain Stake Account
-Allocate space and fund the new staking ID on the Solana blockchain (minimum rent-exempt reserve + stake amount):
-```bash
-solana create-stake-account ~/.config/solana/stake-account.json 2.5
-```
-*(This creates a stake account with 2.5 SOL).*
-
-### 2. Verify Stake Account Details
-```bash
-solana stake-account ~/.config/solana/stake-account.json
-```
-
-### 3. Delegate Stake to a Validator
-Delegate your staking ID to a secure validator in the network:
-```bash
-solana delegate-stake ~/.config/solana/stake-account.json <VALIDATOR_VOTE_ACCOUNT_PUBKEY>
-```
-
----
-
-## Configuring `Cargo.toml` Dependencies
-
-To use or extend the staking programs in your own Rust Cargo workspace, configure your `Cargo.toml`:
-
-### 1. For `solana-staking-protect`
+## Step 1: Add Dependency to `Cargo.toml`
+In your consuming project's `Cargo.toml`:
 ```toml
 [dependencies]
 solana-program = "1.18"
@@ -153,8 +46,41 @@ thiserror = "1.0"
 rust_decimal = { version = "1.33", features = ["math"] }
 solana-staking-protect = { path = "../solana-staking-protect" }
 ```
+*(Or via Git repository)*:
+```toml
+[dependencies]
+solana-staking-protect = { git = "https://github.com/solana-staking-protect/solana-staking-protect", package = "solana-staking-protect" }
+```
 
-### 2. For `solana-staking-simulation` (100% Protection Protocol)
+## Step 2: Create Staking Keypair & Blockchain Staking ID
+1. Generate your authority keypair:
+   ```bash
+   solana-keygen new --outfile ~/.config/solana/id.json --no-passphrase
+   ```
+2. Generate a dedicated staking account keypair (Staking ID):
+   ```bash
+   solana-keygen new --outfile ~/.config/solana/stake-account.json --no-passphrase
+   ```
+3. Allocate and create the stake account on Solana blockchain (e.g. 2.5 SOL):
+   ```bash
+   solana create-stake-account ~/.config/solana/stake-account.json 2.5
+   ```
+
+## Step 3: Build & Deploy Package 1
+```bash
+cd solana-staking-protect
+cargo build --release --target bpfel-unknown-unknown
+solana program deploy target/bpfel-unknown-unknown/release/libsolana_staking_protect.so
+```
+
+---
+
+# PACKAGE 2: `solana-staking-simulation`
+> **Real On-Chain 100% Protection Protocol**
+> Features: Real on-chain loss protection pool, 0.0009% protection fee, 0.04 cent (~40,000 lamports) minimum wallet balance verification, and Maximum tier 100% loss reimbursement.
+
+## Step 1: Add Dependency to `Cargo.toml`
+In your consuming project's `Cargo.toml`:
 ```toml
 [dependencies]
 solana-program = "1.18"
@@ -163,64 +89,50 @@ thiserror = "1.0"
 rust_decimal = { version = "1.33", features = ["math"] }
 solana-staking-simulation = { path = "../solana-staking-simulation" }
 ```
-
----
-
-## Building, Testing, and Deploying
-
-### 1. Build On-Chain Binaries
-```bash
-# Build solana-staking-protect
-cd solana-staking-protect
-cargo build --release --target bpfel-unknown-unknown
-
-# Build solana-staking-simulation
-cd ../solana-staking-simulation
-cargo build --release --target bpfel-unknown-unknown
-```
-Output compiled `.so` files will be located in `target/bpfel-unknown-unknown/release/`.
-
-### 2. Run Test Suite
-```bash
-cargo test --release
+*(Or via Git repository)*:
+```toml
+[dependencies]
+solana-staking-simulation = { git = "https://github.com/solana-staking-protect/solana-staking-protect", package = "solana-staking-simulation" }
 ```
 
-### 3. Deploy to Blockchain
+## Step 2: Initialize Protection & Wallet Balance
+To activate 100% protection on-chain, ensure your wallet meets the minimum balance rule (`>= 40,000` lamports / `0.04` cent) to cover the `0.0009%` protection fee.
+
+Invoke the `ActivateHundredPercentProtection` instruction with your wallet balance in lamports.
+
+## Step 3: Build & Deploy Package 2
 ```bash
-solana program deploy target/bpfel-unknown-unknown/release/libsolana_staking_protect.so
+cd solana-staking-simulation
+cargo build --release --target bpfel-unknown-unknown
 solana program deploy target/bpfel-unknown-unknown/release/libsolana_staking_simulation.so
 ```
 
 ---
 
-## Instruction API Reference & Byte Packing
+## Instruction Bytecode Reference
 
-### `StakeInstruction` (solana-staking-protect)
-| Tag | Instruction | Data Payload |
-|---|---|---|
-| `0` | `Initialize` | `owner` (32 bytes Pubkey) + `amount_lamports` (8 bytes u64) |
-| `1` | `Delegate` | `validator_pubkey` (32 bytes Pubkey) + `amount_lamports` (8 bytes u64) |
-| `2` | `Deactivate` | `amount_lamports` (8 bytes u64) |
-| `3` | `Withdraw` | `amount_lamports` (8 bytes u64) |
-| `4` | `ClaimRewards` | None |
-| `5` | `ActivateProtection` | `tier` (1 byte u8: 1=Basic, 2=Standard, 3=Premium, 4=Maximum) |
-| `6` | `DeactivateProtection` | None |
+### Package 1 (`solana-staking-protect`)
+- `0`: `Initialize` (owner Pubkey + amount u64)
+- `1`: `Delegate` (validator Pubkey + amount u64)
+- `2`: `Deactivate` (amount u64)
+- `3`: `Withdraw` (amount u64)
+- `4`: `ClaimRewards`
+- `5`: `ActivateProtection` (tier u8)
+- `6`: `DeactivateProtection`
 
-### `SimulationInstruction` (solana-staking-simulation)
-| Tag | Instruction | Data Payload |
-|---|---|---|
-| `0` | `InitializeStake` | `owner` (32 bytes Pubkey) + `amount_lamports` (8 bytes u64) |
-| `1` | `DelegateStake` | `validator_pubkey` (32 bytes Pubkey) + `amount_lamports` (8 bytes u64) |
-| `2` | `DeactivateStake` | `amount_lamports` (8 bytes u64) |
-| `3` | `WithdrawStake` | `amount_lamports` (8 bytes u64) |
-| `4` | `ClaimRewards` | None |
-| `5` | `ActivateHundredPercentProtection` | `wallet_balance_lamports` (8 bytes u64) |
-| `6` | `DeactivateProtection` | None |
-| `7` | `CalculateProtectionFee` | `stake_lamports` (8 bytes u64) |
-| `8` | `VerifyFullProtection` | None |
+### Package 2 (`solana-staking-simulation`)
+- `0`: `InitializeStake` (owner Pubkey + amount u64)
+- `1`: `DelegateStake` (validator Pubkey + amount u64)
+- `2`: `DeactivateStake` (amount u64)
+- `3`: `WithdrawStake` (amount u64)
+- `4`: `ClaimRewards`
+- `5`: `ActivateHundredPercentProtection` (wallet balance u64)
+- `6`: `DeactivateProtection`
+- `7`: `CalculateProtectionFee` (stake amount u64)
+- `8`: `VerifyFullProtection`
 
 ---
 
 ## License
 
-Distributed under the **MIT License**. See `LICENSE` for details.
+Distributed under the **MIT License**.
